@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Touch Draw</title>
+
+<style>
+  body{
+    margin:0;
+    overflow:hidden;
+    background:#111;
+  }
+
+  canvas{
+    background:white;
+    touch-action:none;
+    display:block;
+  }
+
+  button{
+    position:fixed;
+    top:10px;
+    left:10px;
+    z-index:10;
+    padding:8px 12px;
+  }
+</style>
+</head>
+
+<body>
+
+<button onclick="clearCanvas()">Clear</button>
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+ctx.lineWidth = 6;
+ctx.lineCap = "round";
+ctx.strokeStyle = "black";
+
+let drawing = false;
+
+// ⭐ draw dot (important fix)
+function drawDot(x,y){
+  ctx.beginPath();
+  ctx.arc(x,y,3,0,Math.PI*1);
+  ctx.fill();
+}
+
+function start(x,y){
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  drawDot(x,y);   // FIX: make dot
+}
+
+function move(x,y){
+  if(!drawing) return;
+  ctx.lineTo(x,y);
+  ctx.stroke();
+}
+
+function end(){
+  drawing = false;
+}
+
+// TOUCH
+canvas.addEventListener("touchstart", e=>{
+  const t = e.touches[0];
+  start(t.clientX, t.clientY);
+});
+
+canvas.addEventListener("touchmove", e=>{
+  e.preventDefault();
+  const t = e.touches[0];
+  move(t.clientX, t.clientY);
+});
+
+canvas.addEventListener("touchend", end);
+
+// MOUSE
+canvas.addEventListener("mousedown", e=> start(e.clientX,e.clientY));
+canvas.addEventListener("mousemove", e=> move(e.clientX,e.clientY));
+canvas.addEventListener("mouseup", end);
+
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+</script>
+
+</body>
+</html>
